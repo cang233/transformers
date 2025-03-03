@@ -1654,6 +1654,9 @@ JINJA_IMPORT_ERROR = """
 jinja2`. Please note that you may need to restart your runtime after installation.
 """
 
+"""
+BACKENDS_MAPPING: 配置的是检查依赖module是否被导入的配置，及如果不存在的报错信息。
+"""
 BACKENDS_MAPPING = OrderedDict(
     [
         ("av", (is_av_available, AV_IMPORT_ERROR)),
@@ -1751,6 +1754,24 @@ IMPORT_STRUCTURE_T = Dict[BACKENDS_T, Dict[str, Set[str]]]
 class _LazyModule(ModuleType):
     """
     Module class that surfaces all objects but only performs associated imports when the objects are requested.
+
+    这是一种模块类，它会公开所有对象，但仅在这些对象被请求时才执行相关的导入操作。
+
+    import_struct格式：
+    ```
+    {
+        frozenset({'tokenizers'}): {
+            'albert.tokenization_albert_fast': {'AlbertTokenizerFast'}
+        },
+        frozenset(): {
+            'albert.configuration_albert': {'AlbertConfig', 'AlbertOnnxConfig'},
+            'align.processing_align': {'AlignProcessor'},
+            'align.configuration_align': {'AlignConfig', 'AlignTextConfig', 'AlignVisionConfig'},
+            'altclip.configuration_altclip': {'AltCLIPConfig', 'AltCLIPTextConfig', 'AltCLIPVisionConfig'},
+            'altclip.processing_altclip': {'AltCLIPProcessor'}
+        }
+    }
+    ```
     """
 
     # Very heavily inspired by optuna.integration._IntegrationModule
@@ -1763,6 +1784,9 @@ class _LazyModule(ModuleType):
         module_spec: importlib.machinery.ModuleSpec = None,
         extra_objects: Dict[str, object] = None,
     ):
+        """
+        根据import_structure检查对应的backend是否导入，约等于是importlib的封装，多了检查操作，后续可以用这个类方法取importlib里的包。
+        """
         super().__init__(name)
 
         self._object_missing_backend = {}

@@ -725,6 +725,7 @@ DEPRECATED_MODELS = [
     "xlm_prophetnet",
 ]
 
+# 包含一些特殊的映射，能复用的那种？
 SPECIAL_MODEL_TYPE_TO_MODULE_NAME = OrderedDict(
     [
         ("openai-gpt", "openai"),
@@ -780,6 +781,7 @@ def config_class_to_model_type(config):
 class _LazyConfigMapping(OrderedDict):
     """
     A dictionary that lazily load its values when they are requested.
+    Lazy的意思就是先获取register的，如果没有才会去系统调用
     """
 
     def __init__(self, mapping):
@@ -922,6 +924,9 @@ def _list_model_options(indent, config_to_class=None, use_model_types=True):
 
 
 def replace_list_option_in_docstrings(config_to_class=None, use_model_types=True):
+    """
+    看起来是用来变更docstring的，根据输入参数变更docstrings里 list options的格式
+    """
     def docstring_decorator(fn):
         docstrings = fn.__doc__
         if docstrings is None:
@@ -964,6 +969,9 @@ class AutoConfig:
 
     @classmethod
     def for_model(cls, model_type: str, *args, **kwargs):
+        """
+        使用@classmethod修饰，可以不用创建对象访问，可以用来调用类的属性、方法、实例化对象等。
+        """
         if model_type in CONFIG_MAPPING:
             config_class = CONFIG_MAPPING[model_type]
             return config_class(*args, **kwargs)
@@ -973,7 +981,7 @@ class AutoConfig:
 
     @classmethod
     @replace_list_option_in_docstrings()
-    def from_pretrained(cls, pretrained_model_name_or_path, **kwargs):
+    def from_pretrained(cls, pretrained_model_name_or_path, **kwargs): 
         r"""
         Instantiate one of the configuration classes of the library from a pretrained model configuration.
 

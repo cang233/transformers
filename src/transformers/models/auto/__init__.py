@@ -22,7 +22,8 @@ from ...utils import (
     is_torch_available,
 )
 
-
+# todo， 这个变量的作用是什么？
+# init文件全部都是通过判断是否是tf\fax\torch来import不同的参数。
 _import_structure = {
     "auto_factory": ["get_values"],
     "configuration_auto": ["CONFIG_MAPPING", "MODEL_NAMES_MAPPING", "AutoConfig"],
