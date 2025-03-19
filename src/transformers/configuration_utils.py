@@ -55,7 +55,7 @@ class PretrainedConfig(PushToHubMixin):
     methods for loading/downloading/saving configurations.
 
     <Tip>
-
+    单独把配置和模型参数分开了，这个只负责模型的配置，但实际的训练获得的参数不在此。
     A configuration file can be loaded and saved to disk. Loading the configuration file and using this file to
     initialize a model does **not** load the model weights. It only affects the model's configuration.
 

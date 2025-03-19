@@ -65,6 +65,7 @@ else:
 logger = logging.get_logger(__name__)
 
 
+# 这里使用flashatt2对kv的优化
 def apply_rotary_pos_emb_flashatt(
     q: torch.Tensor, k: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor
 ) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -83,7 +84,7 @@ class Qwen2_5_VLVisionConfig(PretrainedConfig):
         self,
         depth=32,
         hidden_size=3584,
-        hidden_act="silu",
+        hidden_act="silu",  # relu->glu->silu
         intermediate_size=3420,
         num_heads=16,
         in_channels=3,
@@ -129,6 +130,10 @@ class Qwen2_5_VLMLP(nn.Module):
         self.act_fn = ACT2FN[config.hidden_act]
 
     def forward(self, hidden_state):
+        """
+        这是一个FFN层？和MLP不一个叫法但是一个东西。
+        gate里是门控，w1用来将hidden映射到一个新的维度。up_proj是上映射，将该维度继续映射到更高维度的特征空间，增加表达能力，最后down_proj是下映射，将该维度映射回原始维度，方便后续处理。
+        """
         return self.down_proj(self.act_fn(self.gate_proj(hidden_state)) * self.up_proj(hidden_state))
 
 
@@ -421,6 +426,8 @@ class Qwen2_5_VLForConditionalGeneration(Qwen2VLForConditionalGeneration):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Calculate the 3D rope index based on image and video's temporal, height and width in LLM.
+
+        在大语言模型（LLM）中，基于图像和视频的时间维度、高度和宽度来计算三维RoPE索引。
 
         Explanation:
             Each embedding sequence contains vision embedding and text embedding or just contains text embedding.

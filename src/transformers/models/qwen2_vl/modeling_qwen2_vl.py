@@ -464,6 +464,7 @@ class Qwen2VLVisionBlock(nn.Module):
 class Qwen2RMSNorm(nn.Module):
     def __init__(self, hidden_size, eps=1e-6):
         """
+        均方根归一化，作为大模型里对LayerNorm的替代方案，为啥？因为要速度，在性能不变的情况下，运行时间减少了7%~64%.
         Qwen2RMSNorm is equivalent to T5LayerNorm
         """
         super().__init__()
